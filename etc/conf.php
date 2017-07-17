@@ -4,4 +4,7 @@
 	$db['name'] = "";
 	$db['username'] = "";
 	$db['password'] = "";
+
+	// Site stuff
+	$site['name'] = "Project name";
 ?>
