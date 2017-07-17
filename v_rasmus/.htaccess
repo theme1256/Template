@@ -1,0 +1,33 @@
+IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+
+<Limit GET POST>
+	order deny,allow
+	deny from all
+	allow from all
+</Limit>
+<Limit PUT DELETE>
+	order deny,allow
+	deny from all
+</Limit>
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Force remove www.
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.{HTTP_HOST}
+RewriteRule (.*) http://{HTTP_HOST}/$1 [R=301,L]
+
+# Force redirect to index.php
+RewriteCond %{REQUEST_URI} !=/index.php
+RewriteRule !(^.well-known|\.(css|js))$ index.php
+
+# 1 day cache for most static assets
+<filesMatch ".(jpg|jpeg|png|gif|ico)$">
+	Header set Cache-Control "max-age=86400, public"
+</filesMatch>
+# 1 year cache for most static assets
+<filesMatch ".(css|js)$">
+	Header set Cache-Control "max-age=31536000, public"
+</filesMatch>
