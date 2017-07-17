@@ -1,0 +1,26 @@
+# Rewrites
+Options -MultiViews
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# No need for .php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# Prevent viewing of .htaccess file
+<Files .htaccess>
+	order allow,deny
+	deny from all
+</Files>
+
+# 1 day cache for most static assets
+<filesMatch ".(jpg|jpeg|png|gif|ico)$">
+	Header set Cache-Control "max-age=86400, public"
+</filesMatch>
+# 1 year cache for most static assets
+<filesMatch ".(css|js)$">
+	Header set Cache-Control "max-age=31536000, public"
+</filesMatch>
