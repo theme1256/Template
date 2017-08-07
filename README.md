@@ -28,7 +28,7 @@ Hvad skal der til før siden virker?
 1. Upload `assets` og `etc` til roden af html-mappen
 2. Beslut om der skal bruges `htaccess` eller `index` version
 3. Upload indeholdet fra den valgte versions mappe til roden af html-mappen
-  * Hvis det vælges at bruge `index`, så skal `Redirect.sql` eksekveres på serveren i den database som siden skal bruge
+   * Hvis det vælges at bruge `index`, så skal `Redirect.sql` eksekveres på serveren i den database som siden skal bruge
 4. Kopier `etc/sample_conf.php` til `etc/conf.php` og udfyld variablerne
 
 ### Guide til htaccess-version
