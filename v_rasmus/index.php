@@ -1,6 +1,6 @@
 <?php
 	ini_set('default_charset', 'utf-8');
-	require_once "etc/connect.php";
+	require_once $_SERVER["DOCUMENT_ROOT"]."/etc/connect.php";
 	ob_start();
 
 	$blacklistFolder = ["content", "etc"];
