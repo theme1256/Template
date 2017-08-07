@@ -2,6 +2,14 @@
 	// Database stuff
 	require_once(__DIR__ . "/connect.php");
 
+	// Force HTTPS, also works with Cloudflare
+	if($_SERVER["HTTPS"] != "on"){
+		if($_SERVER['HTTP_X_FORWARDED_PROTO'] == "http"){
+			header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
+			exit;
+		}
+	}
+
 	// Plugins
 	require_once(__DIR__ . "/plugins/Html2Text/Html2Text.php");
 	require_once(__DIR__ . "/plugins/Mobile-Detect-2.8.24/Mobile_Detect.php");
