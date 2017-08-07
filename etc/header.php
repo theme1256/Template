@@ -61,11 +61,13 @@
 		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
 		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
 		<!-- FontAwesome -->
-		<link <?php echo $css_rule;?> href="/<?php echo CSS;?>font-awesome.min.css?v=4.7.0">
+		<link <?php echo $css_rule;?> href="<?= CSS;?>font-awesome.min.css?v=4.7.0">
 		<!-- Custom CSS -->
 		<style type="text/css">
 			body > .container{ padding: 60px 15px 0; }
 			.footer{ position: absolute; bottom: 0; width: 100%; height: 60px; background-color: #f5f5f5; }
+			.footer > .container{ padding-right: 15px; padding-left: 15px; }
+			.footer > .container .text-muted { margin: 20px 0; }
 			body{ margin-bottom: 60px; }
 		</style>
 	</head>
