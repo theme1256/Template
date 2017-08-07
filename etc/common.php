@@ -3,8 +3,13 @@
 	require_once(__DIR__ . "/connect.php");
 
 	// Force HTTPS, also works with Cloudflare
-	if($_SERVER["HTTPS"] != "on"){
+	if($_SERVER["SERVER_PORT"] == 80){
 		if($_SERVER['HTTP_X_FORWARDED_PROTO'] == "http"){
+			header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
+			exit;
+		}
+	} else{
+		if($_SERVER['HTTPS'] != "on"){
 			header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
 			exit;
 		}
