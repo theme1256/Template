@@ -2,7 +2,10 @@
 	session_start();
 
 	// Read configuration
-	require_once(__DIR__ . "/conf.php");
+	if(file_exists(__DIR__ . "/conf.php"))
+		require_once(__DIR__ . "/conf.php");
+	else
+		die("Couldn't read configuration.");
 
 	// Connect to the database
 	try{

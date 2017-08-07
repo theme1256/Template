@@ -3,8 +3,8 @@
 	require_once(__DIR__ . "/connect.php");
 
 	// Plugins
-	require_once(__DIR__ . "/plugins/Html2Text/Html2Text.php";)
-	require_once(__DIR__ . "/plugins/Mobile-Detect-2.8.24/Mobile_Detect.php";)
+	require_once(__DIR__ . "/plugins/Html2Text/Html2Text.php");
+	require_once(__DIR__ . "/plugins/Mobile-Detect-2.8.24/Mobile_Detect.php");
 
 	// Constants
 	define('HOME', '/');
