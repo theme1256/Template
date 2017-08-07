@@ -10,6 +10,12 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
+# Insert rewrites here:
+
+# Sample:
+# RewriteRule ^vagter/year/(.*)/(.*)$ /vagter/year.php?year=$1&action=$2 [L]
+# RewriteRule ^vagter/year/(.*)$ /vagter/year.php?year=$1 [L]
+
 # Prevent viewing of .htaccess file
 <Files .htaccess>
 	order allow,deny
