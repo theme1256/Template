@@ -32,4 +32,13 @@
 	define("MOBILE", 		$mobile->isMobile() ? true : false);
 	define("TABLET", 		$mobile->isTablet() ? true : false);
 	define("onlyScreen",	(TABLET || MOBILE || IOS) ? false : true);
+
+	// Check client browser
+	if(strpos($_SERVER['HTTP_USER_AGENT'], 'Edge') == false){
+		define("CHROME", (strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome') !== false || strpos($_SERVER['HTTP_USER_AGENT'], "Google Page Speed") !== false) ? true : false);
+		define("FIREFOX", (strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') !== false) ? true : false);
+	} else{
+		define("CHROME", false);
+		define("FIREFOX", false);
+	}
 ?>
