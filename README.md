@@ -5,8 +5,8 @@ Indeholder basic plugins, som jeg altid bruger og har 2 versioner:
 * Ren .htaccess
 * Rasmus's index.php
 
-Der ligger også en `deploy.php`, som kan bruges til automatisk deploy fra et hostet git-projekt.
-Bruges ved at lave et web-hook, som pejer på `deploy.php` og brugeren, som eksekverer filen (typisk `www-data`), skal være sat op til at have adgang til projektet med SSH.
+Der ligger også en `deploy.php`, som kan bruges til automatisk deploy fra et hostet git-projekt.  
+Bruges ved at lave et web-hook, som pejer på `deploy.php` og brugeren, som eksekverer filen (typisk `www-data`), skal være sat op til at have adgang til projektet med SSH.  
 Projektet skal også være klonet fra git af samme bruger som eksekverer `deploy.php`, fx med kommandoen:
 ```
 git clone git@github.com:theme1256/template .
@@ -33,16 +33,16 @@ Hvad skal der til før siden virker?
 
 ### Guide til htaccess-version
 
-Virker ved at fjerne `.php` for enden af alle url'er, men stadig rammer php-filerne.
-Virker rigtig godt hvis man har mange hybride url'er.
+Virker ved at fjerne `.php` for enden af alle url'er, men stadig rammer php-filerne.  
+Virker rigtig godt hvis man har mange hybride url'er.  
 Tjek `.htaccess` filen for eksempler og hvor rewrites skal sættes ind.
 
 Filerne på serveren skal ligge på samme måde som url'erne bliver.
 
 ### Guide til index-version
 
-Virker ved at redirecte alle request til `index.php`, som laver et databaseopslag for at finde ud af hvilken fil der skal vises.
-Tillader også at have nemt ved at lave et web-interface til at lave urler som redirecter til andre filer og derved have forskellige url'er som gør det samme.
+Virker ved at redirecte alle request til `index.php`, som laver et databaseopslag for at finde ud af hvilken fil der skal vises.  
+Tillader også at have nemt ved at lave et web-interface til at lave urler som redirecter til andre filer og derved have forskellige url'er som gør det samme.  
 Virker rigtig godt, hvis der ikke er så mange hybride url'er og man ikke har noget imod at vise dem.
 
 Url'er skal oprettes i `Redirect` tabellen, hvor `kildeUrl` er den url, som brugeren skriver, `destinationUrl` er den fil, som `index.php` skal læse og vise, `fk_urlID` bruges kun, hvis `type` er `0`, da den viser hvilken anden url, som der redirectes til. `fk_urlID` skal ikke være sat, hvis den linje er et redirect til en ekstern side. `beskrivelse` er bare en note, så det er nemmere at finde rundt i senere.
