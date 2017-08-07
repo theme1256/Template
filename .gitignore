@@ -1,2 +1,4 @@
 *.sublime*
 etc/conf.php
+.well-known
+.well-known/*
