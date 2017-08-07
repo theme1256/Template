@@ -61,7 +61,7 @@
 		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
 		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
 		<!-- FontAwesome -->
-		<link <?php echo $css_rule;?> href="/<?php echo PLUGIN;?>/font-awesome/css/font-awesome.min.css?v=4.7.0">
+		<link <?php echo $css_rule;?> href="/<?php echo CSS;?>font-awesome.min.css?v=4.7.0">
 		<!-- Custom CSS -->
 		<style type="text/css">
 			body > .container{ padding: 60px 15px 0; }
