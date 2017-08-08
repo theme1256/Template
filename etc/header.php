@@ -41,21 +41,21 @@
 		<![endif]-->
 		<!-- Custom JS -->
 		<script type="text/javascript">
-			<?php
-				if(IOS)
-					echo "var OS = \"ios\";\n";
-				elseif(ANDROID)
-					echo "var OS = \"android\";\n";
-				else
-					echo "var OS = \"computer\";\n";
+			<?php if(IOS):?>
+				var OS = "ios";
+			<?php elseif(ANDROID):?>
+				var OS = "android";
+			<?php else:?>
+				var OS = "computer";
+			<?php endif;?>
 
-				if(TABLET)
-					echo "var DEVICE = \"tablet\";\n";
-				elseif(MOBILE)
-					echo "var DEVICE = \"mobile\";\n";
-				else
-					echo "var DEVICE = \"computer\";\n";
-			?>
+			<?php if(TABLET):?>
+				var DEVICE = "tablet";
+			<?php elseif(MOBILE):?>
+				var DEVICE = "mobile";
+			<?php else:?>
+				var DEVICE = "computer";
+			<?php endif;?>
 		</script>
 		<!-- Bootstrap -->
 		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
