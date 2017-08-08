@@ -7,4 +7,8 @@
 
 	// Site stuff
 	$site['name'] = "Project name";
+
+	// Other auth
+	$mailAuth['username'] = "";
+	$mailAuth['password'] = "";
 ?>

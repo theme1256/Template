@@ -18,12 +18,18 @@
 	// Plugins
 	require_once(__DIR__ . "/plugins/Html2Text/Html2Text.php");
 	require_once(__DIR__ . "/plugins/Mobile-Detect-2.8.24/Mobile_Detect.php");
+	require_once(__DIR__ . "/plugins/PHPMailer/PHPMailerAutoload.php");
+
+	// Wrappers
+	require_once(__DIR__ . "/wrappers/email.php");
+
 
 	// Constants
 	define('HOME', '/');
 	define('ASSETS', HOME.'assets/');
 	define('CSS', ASSETS.'css/');
 	define('JS', ASSETS.'js/');
+	define('PLUGINS', ASSETS.'plugins/');
 
 	// Check device type
 	$mobile = new Mobile_Detect();
