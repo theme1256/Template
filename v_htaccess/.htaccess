@@ -11,6 +11,7 @@ RewriteEngine On
 # Sample:
 # RewriteRule ^vagter/year/(.*)/(.*)$ /vagter/year.php?year=$1&action=$2 [L]
 # RewriteRule ^vagter/year/(.*)$ /vagter/year.php?year=$1 [L]
+RewriteRule ^(da|en)$ /scripts/lang.php?l=$1 [L]
 
 # No need for .php
 RewriteCond %{REQUEST_FILENAME} !-f

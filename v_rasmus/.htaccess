@@ -19,6 +19,8 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\.{HTTP_HOST}
 RewriteRule (.*) http://{HTTP_HOST}/$1 [R=301,L]
 
+RewriteRule ^(da|en)$ /scripts/lang.php?l=$1 [L]
+
 # Force redirect to index.php
 RewriteCond %{REQUEST_URI} !=/index.php
 RewriteRule !(^.well-known|\.(css|js))$ index.php

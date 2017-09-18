@@ -56,6 +56,77 @@
 			<?php else:?>
 				var DEVICE = "computer";
 			<?php endif;?>
+
+			function call($url, $data, _success, _fail){
+				$.ajax({
+					url: $url,
+					type: 'POST',
+					dataType: 'json',
+					data: $data,
+				}).done(function(d){
+					if(d.status == "success")
+						_success(d);
+					else
+						_fail(d);
+				}).fail(function(d){
+					console.log(d);
+					_fail(d);
+				});
+			}
+			function callAuto($url, $data, _success, $target){
+				$.ajax({
+					url: $url,
+					type: 'POST',
+					dataType: 'json',
+					data: $data,
+				}).done(function(d){
+					if(d.status == "success")
+						_success(d);
+					else
+						statusBox($target, d.msg, d.status);
+				}).fail(function(d){
+					console.log(d);
+					if(d.status == 404)
+						var msg = "<?= $Content->out(7);?>";
+					else if(d.status == 500)
+						var msg = "<?= $Content->out(8);?>";
+					else
+						var msg = "<?= $Content->out(9);?>" + d.status + ", " + d.statusText;
+					statusBox($target, msg, "danger");
+				});
+			}
+
+			var E = 0;
+			function validate(id, p = ".form-group"){
+				var obj = $(id);
+				var p = obj.closest(p);
+				p.removeClass("has-error");
+				p.removeClass("has-warning");
+				p.removeClass("has-success");
+				var val = obj.val();
+				if(val == "" || !val || val.length === 0 || val == 0){
+					p.addClass("has-error");
+					E++;
+					return false;
+				} else{
+					p.addClass("has-success");
+					return val;
+				}
+			}
+			function statusBox(id, msg, type){
+				var obj = $(id);
+				obj.slideUp();
+				obj.removeClass("alert-success");
+				obj.removeClass("alert-warning");
+				obj.removeClass("alert-danger");
+				obj.addClass("alert-"+type);
+				obj.html(msg);
+				obj.slideDown(400);
+				setTimeout(function(){
+					obj.slideUp(400);
+					obj.html("");
+				}, 8000);
+			}
 		</script>
 		<!-- Bootstrap -->
 		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
@@ -67,9 +138,10 @@
 			html, body{ height: 100%; }
 			.wrap > .container{ padding-top: 70px; }
 			.wrap{ min-height: 100%; height: auto !important; height: 100%; margin: 0 auto -60px; }
-			.footer { /*position: absolute; bottom: 0; width: 100%;*/ height: 60px; background-color: #f5f5f5; }
+			.footer { height: 60px; background-color: #f5f5f5; }
 			.footer > .container > .text-muted{ margin: 20px 0; }
 			.push{ height: 60px; }
+			img{ max-width: 100%; }
 		</style>
 	</head>
 	<body>
