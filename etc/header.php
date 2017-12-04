@@ -39,8 +39,19 @@
 		<!--[if lt IE 9]>
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
+		<!-- Bootstrap -->
+		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
+		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
+		<!-- FontAwesome -->
+		<link <?php echo $css_rule;?> href="<?= CSS;?>font-awesome.min.css?v=4.7.0">
+		<!-- Gritter -->
+		<script async type="text/javascript" src="<?= JS;?>jquery.gritter.js?v=1.7.4"></script>
+		<link <?php echo $css_rule;?> href="<?= CSS;?>jquery.gritter.css?v=1.7.4"/>
 		<!-- Custom JS -->
 		<script type="text/javascript">
+			// En global variabel som bruges til at se om en klient skal have extra information i console.log el.l.
+			var DEBUG = <?= (DEBUG ? "true" : "false");?>;
+
 			<?php if(IOS):?>
 				var OS = "ios";
 			<?php elseif(ANDROID):?>
@@ -57,45 +68,79 @@
 				var DEVICE = "computer";
 			<?php endif;?>
 
-			function call($url, $data, _success, _fail){
+			// En wrapper til at lave AJAX kald, så man ikke skal håndtere opsætning og fejl hver gang
+			function call($url, $data, _success, $type = "POST"){
 				$.ajax({
 					url: $url,
-					type: 'POST',
+					type: $type,
 					dataType: 'json',
 					data: $data,
 				}).done(function(d){
 					if(d.status == "success")
 						_success(d);
 					else
-						_fail(d);
+						notify(d.message, d.status);
 				}).fail(function(d){
-					console.log(d);
-					_fail(d);
+					if(DEBUG)
+						console.log(d);
+
+					if(d.status == 404)
+						var msg = "Filen blev ikke fundet på serveren.";
+					else if(d.status == 403)
+						var msg = "Du har ikke adgang til at kalde det script.";
+					else if(d.status == 500)
+						var msg = "Der skete en fejl på serveren. (500)";
+					else
+						var msg = "Fejl: " + d.status + ", " + d.statusText;
+
+					notify(msg, "danger");
 				});
 			}
-			function callAuto($url, $data, _success, $target){
-				$.ajax({
-					url: $url,
-					type: 'POST',
-					dataType: 'json',
-					data: $data,
-				}).done(function(d){
-					if(d.status == "success")
-						_success(d);
-					else
-						statusBox($target, d.msg, d.status);
-				}).fail(function(d){
-					console.log(d);
-					if(d.status == 404)
-						var msg = "<?= $Content->out(7);?>";
-					else if(d.status == 500)
-						var msg = "<?= $Content->out(8);?>";
-					else
-						var msg = "<?= $Content->out(9);?>" + d.status + ", " + d.statusText;
-					statusBox($target, msg, "danger");
+			// Opretter en notifikation gennem gritter pluginet
+			// Udviddet til at understøtte danger, warning og success
+			function notify(msg, type, sticky = false){
+				$.gritter.add({
+					text: msg,
+					class_name: 'gritter-'+type,
+					sticky: sticky
 				});
+			}
+			// Opretter en notifikation i den oprettede box
+			function statusBox(id, msg, type){
+				var obj = $(id);
+				obj.slideUp();
+				obj.removeClass("alert-success");
+				obj.removeClass("alert-warning");
+				obj.removeClass("alert-danger");
+				obj.addClass("alert-"+type);
+				obj.html(msg);
+				obj.slideDown(400);
+				setTimeout(function(){
+					obj.slideUp(400);
+					obj.html("");
+				}, 8000);
+			}
+			// Konverterer .serializeArray() til et Object som $.ajax (eller call()) kan bruge til noget
+			function objectifyForm(inp){
+				var rObject = {};
+				for (var i = 0; i < inp.length; i++){
+					if(inp[i]['name'].substr(inp[i]['name'].length - 2) == "[]"){
+						var tmp = inp[i]['name'].substr(0, inp[i]['name'].length-2);
+						if(Array.isArray(rObject[tmp])){
+							rObject[tmp].push(inp[i]['value']);
+						} else{
+							rObject[tmp] = [];
+							rObject[tmp].push(inp[i]['value']);
+						}
+					} else{
+						rObject[inp[i]['name']] = inp[i]['value'];
+					}
+				}
+				return rObject;
 			}
 
+			// En måde at validere inputs og eftersom JavaScript ikke understøtter pointers, så er der en global variabel E, som tæller fejl
+			// Husk at nulstille E i starten af en validering
 			var E = 0;
 			function validate(id, p = ".form-group"){
 				var obj = $(id);
@@ -113,26 +158,7 @@
 					return val;
 				}
 			}
-			function statusBox(id, msg, type){
-				var obj = $(id);
-				obj.slideUp();
-				obj.removeClass("alert-success");
-				obj.removeClass("alert-warning");
-				obj.removeClass("alert-danger");
-				obj.addClass("alert-"+type);
-				obj.html(msg);
-				obj.slideDown(400);
-				setTimeout(function(){
-					obj.slideUp(400);
-					obj.html("");
-				}, 8000);
-			}
 		</script>
-		<!-- Bootstrap -->
-		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
-		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
-		<!-- FontAwesome -->
-		<link <?php echo $css_rule;?> href="<?= CSS;?>font-awesome.min.css?v=4.7.0">
 		<!-- Custom CSS -->
 		<style type="text/css">
 			html, body{ height: 100%; }
@@ -142,6 +168,11 @@
 			.footer > .container > .text-muted{ margin: 20px 0; }
 			.push{ height: 60px; }
 			img{ max-width: 100%; }
+			.gritter-danger > div, .gritter-warning > div, .gritter-success > div{ background: none !important; }
+			.gritter-danger > div.gritter-item, .gritter-warning > div.gritter-item, .gritter-success > div.gritter-item{ color: #eee !important; font-size: 13px !important; }
+			.gritter-danger{ background-color: rgba(217, 83, 79, .8) !important; }
+			.gritter-warning{ background-color: rgba(240, 173, 78, .8) !important; }
+			.gritter-success{ background-color: rgba(92, 184, 92, .8) !important; }
 		</style>
 	</head>
 	<body>
