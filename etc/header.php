@@ -37,8 +37,8 @@
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
 		<!-- Bootstrap -->
-		<link <?= $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
-		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
+		<link <?= $css_rule;?> href="<?= PLUGINS;?>bootstrap-4.1.3-dist/css/bootstrap.min.css"/>
+		<script async type="text/javascript" src="<?= PLUGINS;?>bootstrap-4.1.3-dist/js/bootstrap.min.js"></script>
 		<!-- FontAwesome -->
 		<link <?= $css_rule;?> href="<?= PLUGINS;?>fontawesome-free-5.2.0-web/css/all.min.css">
 		<!-- Gritter -->
