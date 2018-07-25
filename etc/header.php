@@ -55,36 +55,61 @@
 			const DEVICE = "<?= (TABLET ? "tablet" : (MOBILE ? "mobile" : "computer"))?>";
 
 			// En wrapper til at lave AJAX kald, så man ikke skal håndtere opsætning og fejl hver gang
-			function call($url, $data, _success, $type = "POST"){
-				$.ajax({
+			let call = function($url, $data, _success, _fail = null, $type = "POST", extra = null){
+				<?php if(LOGIN):?>
+				$data.access_token = "<?= $_SESSION['access_token'];?>";
+				<?php endif;?>
+				if(DEBUG)
+					console.log($data);
+				let conf = {
 					url: $url,
 					type: $type,
 					dataType: 'json',
-					data: $data,
-				}).done(function(d){
-					if(d.status == "success")
+					crossDomain: true,
+					data: $data
+				};
+				if(extra != null){
+					$.each(extra, function(key, value){
+						conf[key] = value;
+					});
+				}
+				$.ajax(
+					conf
+				).done(function(d){
+					if(d.status == "success"){
 						_success(d);
-					else
+					} else{
+						if(d.reason == "invalid access_token"){
+							call("https://api.rfvagt.dk/access?refresh-token", {}, function(d){
+								location.reload();
+							});
+						}
 						notify(d.message, d.status);
+						if(_fail != null)
+							_fail(d);
+					}
 				}).fail(function(d){
 					if(DEBUG)
 						console.log(d);
 
-					if(d.status == 404)
-						var msg = "Filen blev ikke fundet på serveren.";
-					else if(d.status == 403)
-						var msg = "Du har ikke adgang til at kalde det script.";
-					else if(d.status == 500)
-						var msg = "Der skete en fejl på serveren. (500)";
-					else
-						var msg = "Fejl: " + d.status + ", " + d.statusText;
+					if(d.status == 404){
+						const msg = "Filen blev ikke fundet på serveren.";
+					} else if(d.status == 403){
+						const msg = "Du har ikke adgang til at kalde det script.";
+					} else if(d.status == 500){
+						const msg = "Der skete en fejl på serveren. (500)";
+					} else{
+						const msg = "Fejl: " + d.status + ", " + d.statusText;
+					}
 
 					notify(msg, "danger");
+					if(_fail != null)
+						_fail(d);
 				});
 			}
 			// Opretter en notifikation gennem gritter pluginet
 			// Udviddet til at understøtte danger, warning og success
-			function notify(msg, type, sticky = false){
+			let notify = function(msg, type, sticky = false){
 				$.gritter.add({
 					text: msg,
 					class_name: 'gritter-'+type,
@@ -92,11 +117,11 @@
 				});
 			}
 			// Konverterer .serializeArray() til et Object som $.ajax (eller call()) kan bruge til noget
-			function objectifyForm(inp){
-				var rObject = {};
-				for (var i = 0; i < inp.length; i++){
+			let objectifyForm = function(inp){
+				let rObject = {};
+				for(let i = 0; i < inp.length; i++){
 					if(inp[i]['name'].substr(inp[i]['name'].length - 2) == "[]"){
-						var tmp = inp[i]['name'].substr(0, inp[i]['name'].length-2);
+						const tmp = inp[i]['name'].substr(0, inp[i]['name'].length-2);
 						if(Array.isArray(rObject[tmp])){
 							rObject[tmp].push(inp[i]['value']);
 						} else{
@@ -112,14 +137,14 @@
 
 			// En måde at validere inputs og eftersom JavaScript ikke understøtter pointers, så er der en global variabel E, som tæller fejl
 			// Husk at nulstille E i starten af en validering
-			var E = 0;
-			function validate(id, p = ".form-group"){
-				var obj = $(id);
-				var p = obj.closest(p);
+			let E = 0;
+			let validate = function(id, parent = ".form-group"){
+				const obj = $(id);
+				let p = obj.closest(parent);
 				p.removeClass("has-error");
 				p.removeClass("has-warning");
 				p.removeClass("has-success");
-				var val = obj.val();
+				const val = obj.val();
 				if(val == "" || !val || val.length === 0 || val == 0){
 					p.addClass("has-error");
 					E++;
@@ -129,6 +154,58 @@
 					return val;
 				}
 			}
+
+			// Noget kode som fanger form-submit og retter det til et AJAX kald
+			$(function(){
+				$("form").submit(function(e){
+					e.preventDefault();
+					// Fin knappen der blev klikket på
+					let btn = $(this).find("button.btn[clicked=true]");
+					// Hent teksten i den knap
+					const btn_text = btn.text();
+					// Opdater knappen til en spinner
+					btn.html('<i class="far fa-spinner fa-spin fa-fw"></i>');
+					btn.attr("disabled", "disabled");
+					// Hent url der skal sendes data til og metoden
+					const url = $(this).attr("action");
+					const method = $(this).attr("method");
+					
+					// Hent data fra formen
+					E = 0;
+					let Data = {};
+					$(this).find("input").each(function(index, el){
+						let e = $(el);
+						Data[e.attr('name')] = e.val();
+					});
+					Data.method = "ajax";
+					const after = (Data.return === undefined ? false : Data.return);
+					// Send data til API
+					call(
+						url,
+						Data,
+						function(d){
+							setTimeout(function(){
+								if(after)
+									location.href = after;
+								else
+									location.reload();
+							}, 1000);
+							btn.html(btn_text);
+							btn.removeAttr("disabled");
+							notify(d.message, d.status);
+						},
+						function(d){
+							btn.html(btn_text);
+							btn.removeAttr("disabled");
+						},
+						method
+					);
+				});
+				$("form button.btn").click(function() {
+					$("button", $(this).parents("form")).removeAttr("clicked");
+					$(this).attr("clicked", "true");
+				});
+			});
 		</script>
 		<!-- Custom CSS -->
 		<style type="text/css">
@@ -144,6 +221,15 @@
 			.gritter-danger{ background-color: rgba(217, 83, 79, .8) !important; }
 			.gritter-warning{ background-color: rgba(240, 173, 78, .8) !important; }
 			.gritter-success{ background-color: rgba(92, 184, 92, .8) !important; }
+			/* En ekstra tæt tabel */
+			.table-very-condensed > thead > tr > th,
+			.table-very-condensed > tbody > tr > th,
+			.table-very-condensed > tfoot > tr > th,
+			.table-very-condensed > thead > tr > td,
+			.table-very-condensed > tbody > tr > td,
+			.table-very-condensed > tfoot > tr > td{
+			    padding: 5px 10px !important;
+			}
 		</style>
 	</head>
 	<body>
