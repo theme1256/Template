@@ -1,176 +1,217 @@
 <?php
 	ini_set('default_charset', 'utf-8');
-	require_once $_SERVER["DOCUMENT_ROOT"]."/etc/connect.php";
 	ob_start();
 
-	$blacklistFolder = ["content", "etc"];
-
+	// Finder ud af om den givne variabel er en fil, eller om der ligger en index fil i den mappe, hvis det er en mappe
 	function checkIsFile($inUrl){
-		if(is_dir($_SERVER["DOCUMENT_ROOT"] . $inUrl)){
+		if(is_dir(__DIR__ . $inUrl)){
 			if($inUrl == null){
 				$inUrl = "/";
 			}
-			foreach(array("html", "htm", "php", "aps", "apsx", "jpg") AS $ex){
-				$out = $_SERVER["DOCUMENT_ROOT"] . $inUrl . "index." . $ex;
-
-				if(is_file($out) && $out != $_SERVER["DOCUMENT_ROOT"] . "/index.php"){
-					$inUrl = $inUrl . "index." . $ex;
-					return $inUrl;
-				}
+			foreach(["html", "htm", "php"] AS $ex){
+				$out = __DIR__ . $inUrl . "index." . $ex;
+				if(is_file($out) && $out != __FILE__)
+					return $inUrl . "index." . $ex;
 			}
-			return false;
-		} elseif(is_file($_SERVER["DOCUMENT_ROOT"] . $inUrl)){
+		} elseif(is_file(__DIR__ . $inUrl)){
 			return $inUrl;
-		} else {
-			return false;
 		}
 		return false;
 	}
-
-	function blacklistFolder($blacklistFolder, $inUrl){
-		error_reporting(0);
+	// Tjekker om den givne variabel befinder sig i en blacklistet mappe
+	function blacklistFolder(&$blacklistFolder, $inUrl){
 		foreach($blacklistFolder as $folder => $filetypes){
-			if(is_numeric($folder)){
-				$folder = $filetypes;
-				$filetypes = null;
+			$ft = "";
+			if(!empty($filetypes)){
+				if(is_array($filetypes))
+					$ft = implode("|", $filetypes);
+				else
+					$ft = $filetypes;
 			}
-			if($filetypes != ""){
-				if(is_array($filetypes)){
-					for($i = 0; $i < count($filetypes); $i++)
-						$ft .= "\.".trim($filetypes[$i])."|";
-				} else{
-					$fta = preg_split("/[\,\;]/", $filetypes);
-					for($i = 0; $i < count($fta); $i++)
-						$ft .= "\." . trim($fta[$i]) . "|";
+			if(preg_match("/^\/{$folder}\/.*\.(php|html|htm|{$ft}\/)$/i", $inUrl))
+				return true;
+		}
+		return false;
+	}
+	// Finde og sammenligner regex versioner af URL fra databasen
+	function regexTest($url, &$db, $webID){
+		global $_GET;
+		try{
+			$q = $db->prepare("SELECT kildeUrl, destinationUrl, type, noindex, url_id FROM redirect WHERE web_id LIKE (:w) AND regex LIKE (1)");
+			$q->bindParam(":w", $webID);
+			$q->execute();
+			foreach($q->fetchAll(PDO::FETCH_ASSOC) as $test){
+				if(preg_match("/".str_replace("/", "\/", $test['kildeUrl'])."/i", $url, $match)){
+					if(strpos($test['destinationUrl'], "?") !== false){
+						$tmp = @(explode("?", $test['destinationUrl'])[1]);
+						$tmp = explode("&", $tmp);
+						foreach($tmp as $param){
+							$t = explode("=", $param);
+							$_GET[$t[0]] = @($match[intval(str_replace("\$", "", $t[1]))]);
+						}
+					}
+					return $test;
 				}
 			}
-			if(preg_match("/^\/$folder\/.*(\.php|\.html|\.htm|$ft\/)$/i", $inUrl)){
-				return "/";
-			}
+			return false;
+		} catch(PDOException $e){
+			die("kan ikke udføre regex-URL handling" . $e->getMessage());
 		}
-		error_reporting(22527);
-		return false;
 	}
 
+	require_once "etc/defines.php";
+	$blacklistFolder = ["indhold" => [], "etc" => []];
 
-	error_reporting(0);
-	$inUrl = $_SERVER["REDIRECT_URL"];
+	$rw_desc = [0 => "redirect", 1 => "rewrite", 2 => "image", 3 => "file"];
+
+	$inUrl = @($_SERVER["REDIRECT_URL"]);
 	$type = 3;
-	error_reporting(22527);
 
 	$url = checkIsFile($inUrl);
 	if(!$url){
-		if(preg_match("/(\.gif)|(\.jpg)|(\.jpeg)|(\.png)$/", strtolower($inUrl))){
-			$inUrl = preg_replace("/\.+[a-z]*$/", '', strtolower($inUrl));
+		// Hvis det er en gif, jpg, jpeg eller png, fjern extension
+		if(preg_match("/\.(gif|jpg|jpeg|png)$/i", $inUrl)){
+			$inUrl = preg_replace("/\.+[a-z]*$/i", '', $inUrl);
 		}
-		$inUrl = preg_replace("/\.$/", '', $inUrl);
-		$inUrl = preg_replace("/\/$/", '', $inUrl);
+		// Fjern afsluttende . eller /
+		$inUrl = preg_replace("/(\.|\/)$/", '', $inUrl);
 
-		$q = $con->prepare("SELECT url_id AS id, kildeUrl AS sUrl, destinationUrl AS dUrl, type FROM Redirect WHERE kildeUrl LIKE (:source) ORDER BY id DESC");
-		$q->bindParam(":source", $inUrl);
-		$q->execute();
-		if($q->rowCount() == 0){
-			$url = "/";
-			$type = 0;
-		} else{
-			$row = $q->fetch(PDO::FETCH_ASSOC);
-			$inUrl      = $row['sUrl'];
-			$url        = $row['dUrl'];
-			$type       = $row['type']; // type = 0 redirect, 1 rewrite, 2 image, 3 file
+		try{
+			$q = $faelles->prepare("
+				SELECT
+					url_id AS id,
+					kildeUrl AS sUrl,
+					destinationUrl AS dUrl,
+					type,
+					noindex
+				FROM `redirect`
+				WHERE
+					`kildeUrl` LIKE (:inUrl) AND
+					`web_id` LIKE (:websideID)
+				ORDER BY `id` DESC
+			");
+			$q->bindParam(":inUrl", $inUrl);
+			$q->bindParam(":websideID", $websideID);
+			$q->execute();
+			if($q->rowCount() == 0){
+				// inUrl kunne ikke findes, tjekker om en regexUrl matcher den i stedet
+				$tmp = regexTest($inUrl, $faelles, $websideID);
+				if(is_array($tmp)){
+					$type = $tmp['type'];
+					$noindex = $tmp['noindex'];
+					$url = explode("?", $tmp['destinationUrl'])[0];
+				} else{
+					$url = "/";
+					$type = 0;
+				}
+			} else{
+				$row = $q->fetch(PDO::FETCH_ASSOC);
+				$inUrl   = $row['sUrl'];
+				$url     = $row['dUrl'];
+				$type    = $row['type']; // type = 0 redirect, 1 rewrite, 2 image
+				$noindex = $row['noindex'];
+			}
+		} catch(PDOException $e){
+			die("kan ikke udføre URL handling" . $e->getMessage());
 		}
 	} else{
+		// Fjern begyndende /
 		$url = preg_replace("/^\//", "", $url);
-		if(preg_match("/(\.gif)|(\.jpg)|(\.jpeg)|(\.png)$/i", strtolower($url))){
+		// Tjek om det er et billede eller en php/html side og sæt type
+		if(preg_match("/\.(gif|jpg|jpeg|png)$/i", $url)){
 			$type = 2;
-		} elseif(preg_match("/(\.php)|(\.html)|(\.htm)$/i", strtolower($url))){
+		} elseif(preg_match("/\.(php|html|htm)$/i", $url)){
 			$type = 1;
 		}
 	}
 
-	if(blacklistFolder($blacklistFolder, $inUrl)){
-		$type=0;
-	}
-
+	// Hvis der på dette tidspunkt ikke er en URL, så er der sket en kæmpe fejl
 	if($url == "")
-		die ("url mangler");
+		die("url mangler");
 
-	if($type == 0){ // redirect
+	// Gør så det ikke er muligt at tilgå filer i blacklistede mapper
+	if(blacklistFolder($blacklistFolder, $inUrl))
+		$type = 0;
+
+	// Lidt log, hvis det ikke er et billede
+	if($type != 2){
 		$q = "";
 		if($_SERVER["QUERY_STRING"] != "")
 			$q = "?" . $_SERVER["QUERY_STRING"];
 
-		Header("HTTP/1.1 301 Moved Permanently");
-		Header("Location: " . $url . $q);
-	} elseif($type == 1){ // rewrite
-		error_reporting(0);
-		$urlarray = preg_split("/\?/", $url, 2);
+		$logArray = [];
+		// Hent tidligere variabler fra session
+		$m = 0;
+		if(@sizeof($_SESSION["logurl"]) > 0){
+			foreach($_SESSION["logurl"] AS $logkey => $logvalue){
+				// Log kun 4 gange bagud
+				if($m > 4)
+					continue;
+				$logArray[$m] = $logvalue;
+				$m++;
+			}
+		}
+		$logArray[$m] = [
+			"HTTP_REFERER" => @($_SERVER["HTTP_REFERER"]),
+			"time" => date("Y-m-d H:i:s"),
+			"inUrl" => $inUrl . $q,
+			"load_file" => $url,
+			"load_type" => $type . " | type beskrivelse: " . $rw_desc[$type]
+		];
 
-		if($urlarray[1] != ""){
+		$_SESSION["logurl"] = $logArray;
+	}
+
+	if($type == 0){ // redirect
+		header($_SERVER['SERVER_PROTOCOL'] . ' 301 Moved Permanently', true, 301);
+		header("Location: " . $url . $_SERVER["QUERY_STRING"]);
+	} elseif($type == 1){ // rewrite
+		if($noindex > 0)
+			header("X-Robots-Tag: noindex");
+		$urlarray = explode("?", $url);
+
+		// Hvis der er noget efter ? i urlen
+		if(!empty($urlarray[1])){
 			if(preg_match_all("/([a-z0-9]*)\=(.*?)(\&|\$)/", $urlarray[1], $get)){
 				foreach($get[1] AS $k => $v){
-					if($_GET[$v] == null){
+					if(@($_GET[$v]) == null){
 						$_GET[$v] = $get[2][$k];
 					}
 				}
 			}
-			if(preg_match_all("/([a-z0-9]*)\=(.*?)(\&|\$)/", $_SERVER['REDIRECT_QUERY_STRING'], $get)){
+			if(preg_match_all("/([a-z0-9]*)\=(.*?)(\&|\$)/", @($_SERVER['REDIRECT_QUERY_STRING']), $get)){
 				foreach($get[1] AS $k => $v){
 					$_GET[$v] = $get[2][$k];
 				}
 			}
-			$url = checkIsFile("/" . $urlarray[0]);
+			$url = checkIsFile("/".$urlarray[0]);
 			$url = preg_replace("/^\/\//", "", $url);
 			$url = preg_replace("/^\//", "", $url);
+			require_once $url;
 		} else{
-			$url = preg_replace("/^\//", "", $url);
+			require_once preg_replace("/^\//", "", $url);
 		}
-		error_reporting(22527);
-		include_once $url;
 	} elseif($type == 2){ // image
-		header("Content-type: " . mime_content_type($url));
-		header("Content-Length: " . filesize($url));
-		header("Content-Disposition: filename=\"$url\"");
-		readfile($_SERVER["DOCUMENT_ROOT"] . "/" . $url);
-	} elseif($type == 3){ // file
-		$ext = strtolower(mime_content_type($url));
-		$newFilname = $inUrl . $ext;
+		if(preg_match("/^\//", $url))
+			$url = __DIR__ . $url;
 
-		switch($ext){ 
-			case "css": 
-				header('Content-Type: text/css; charset=UTF-8');
-				break;
-			case "js": 
-				header('Content-Type: text/javascript; charset=UTF-8');
-				break; 
-			case "pdf": 
-				header('Content-Type: application/pdf');
-				break; 
-			case "zip": 
-				header("Content-type: application/zip");
-				break; 
-			case "doc": 
-				header("Content-type: application/msword");
-				break; 
-			case "docx": 
-				header("Content-type: application/msword");
-				break; 
-			case "xls": 
-				header("Content-type: application/vnd.ms-excel");
-				break; 
-			case "xlsx": 
-				header("Content-type: application/vnd.ms-excel");
-				break; 
-			case "ppt": 
-				header("Content-type: application/vnd.ms-powerpoint");
-				break; 
-			case "pptx": 
-				header("Content-type: application/vnd.ms-powerpoint");
-				break;
-			default: 
-				header("Content-type: application/force-download"); 
-		}
+		header("Expires: Wed, 01 Jan 2018 00:00:00 GMT");
+		header("Content-type: " . getimagesize($url)['mime']);
 		header("Content-Length: " . filesize($url));
-		header("Content-Disposition: filename=\"$newFilname\"");
+		header("Content-Disposition: filename=\"" . end(preg_split("/\//", $url)) . "\"");
+		header("Cache-Control: max-age=2592000");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime($url)) . " GMT");
+		header("Pragma: public");
+		readfile($url);
+	} elseif($type == 3){ // file
+		$mime = strtolower(mime_content_type($url));
+		if(in_array($mime, ["text/css", "text/javascript", "application/pdf", "application/zip", "application/msword", "application/vnd.ms-excel", "application/vnd.ms-powerpoint"]))
+			header("Content-type: ".$mime);
+		else
+			header("Content-type: application/force-download");
+
+		header("Content-Length: " . filesize($url));
+		header("Content-Disposition: filename=\"" . substr($inUrl, 1) . "\"");
 		header("Cache-Control: no-cache");
 		header("Pragma: no-cache");
 		readfile($url);

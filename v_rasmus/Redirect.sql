@@ -26,12 +26,14 @@ SET time_zone = "+00:00";
 -- Table structure for table `Redirect`
 --
 
-CREATE TABLE `Redirect` (
+CREATE TABLE `redirect` (
   `url_id` int(5) NOT NULL,
   `kildeUrl` varchar(256) NOT NULL,
   `destinationUrl` varchar(256) NOT NULL,
   `fk_urlID` int(5) DEFAULT NULL,
   `type` int(5) NOT NULL,
+  `noindex` int(2) NOT NULL DEFAULT '0',
+  `regex` int(1) NOT NULL DEFAULT '0',
   `beskrivelse` varchar(75) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -56,6 +58,12 @@ ALTER TABLE `Redirect`
 --
 ALTER TABLE `Redirect`
   MODIFY `url_id` int(5) NOT NULL AUTO_INCREMENT;
+--
+-- Constraints for table `redirect`
+--
+ALTER TABLE `redirect`
+  ADD CONSTRAINT `redirect_ibfk_2` FOREIGN KEY (`fk_urlID`) REFERENCES `redirect` (`url_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
