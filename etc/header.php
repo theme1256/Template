@@ -43,7 +43,7 @@
 		<link <?= $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
 		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
 		<!-- FontAwesome -->
-		<link <?= $css_rule;?> href="<?= CSS;?>font-awesome.min.css?v=4.7.0">
+		<link <?= $css_rule;?> href="<?= PLUGINS;?>fontawesome-free-5.2.0-web/css/all.min.css">
 		<!-- Gritter -->
 		<script async type="text/javascript" src="<?= JS;?>jquery.gritter.js?v=1.7.4"></script>
 		<link <?= $css_rule;?> href="<?= CSS;?>jquery.gritter.css?v=1.7.4"/>
