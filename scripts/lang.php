@@ -1,5 +1,5 @@
 <?php
-	require $_SERVER["DOCUMENT_ROOT"]."/etc/common.php";
+	require_once $_SERVER["DOCUMENT_ROOT"]."/etc/common.php";
 
 	$l = $Content->clean($_GET['l']);
 

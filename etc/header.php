@@ -40,33 +40,19 @@
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
 		<!-- Bootstrap -->
-		<link <?php echo $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
+		<link <?= $css_rule;?> href="<?= CSS;?>bootstrap.min.css?v=3.3.7"/>
 		<script async type="text/javascript" src="<?= JS;?>bootstrap.min.js?v=3.3.7"></script>
 		<!-- FontAwesome -->
-		<link <?php echo $css_rule;?> href="<?= CSS;?>font-awesome.min.css?v=4.7.0">
+		<link <?= $css_rule;?> href="<?= CSS;?>font-awesome.min.css?v=4.7.0">
 		<!-- Gritter -->
 		<script async type="text/javascript" src="<?= JS;?>jquery.gritter.js?v=1.7.4"></script>
-		<link <?php echo $css_rule;?> href="<?= CSS;?>jquery.gritter.css?v=1.7.4"/>
+		<link <?= $css_rule;?> href="<?= CSS;?>jquery.gritter.css?v=1.7.4"/>
 		<!-- Custom JS -->
 		<script type="text/javascript">
 			// En global variabel som bruges til at se om en klient skal have extra information i console.log el.l.
-			var DEBUG = <?= (DEBUG ? "true" : "false");?>;
-
-			<?php if(IOS):?>
-				var OS = "ios";
-			<?php elseif(ANDROID):?>
-				var OS = "android";
-			<?php else:?>
-				var OS = "computer";
-			<?php endif;?>
-
-			<?php if(TABLET):?>
-				var DEVICE = "tablet";
-			<?php elseif(MOBILE):?>
-				var DEVICE = "mobile";
-			<?php else:?>
-				var DEVICE = "computer";
-			<?php endif;?>
+			const DEBUG = <?= (DEBUG ? "true" : "false");?>;
+			const OS = "<?= (IOS ? "ios" : (ANDROID ? "android" : "computer"))?>";
+			const DEVICE = "<?= (TABLET ? "tablet" : (MOBILE ? "mobile" : "computer"))?>";
 
 			// En wrapper til at lave AJAX kald, så man ikke skal håndtere opsætning og fejl hver gang
 			function call($url, $data, _success, $type = "POST"){
@@ -104,21 +90,6 @@
 					class_name: 'gritter-'+type,
 					sticky: sticky
 				});
-			}
-			// Opretter en notifikation i den oprettede box
-			function statusBox(id, msg, type){
-				var obj = $(id);
-				obj.slideUp();
-				obj.removeClass("alert-success");
-				obj.removeClass("alert-warning");
-				obj.removeClass("alert-danger");
-				obj.addClass("alert-"+type);
-				obj.html(msg);
-				obj.slideDown(400);
-				setTimeout(function(){
-					obj.slideUp(400);
-					obj.html("");
-				}, 8000);
 			}
 			// Konverterer .serializeArray() til et Object som $.ajax (eller call()) kan bruge til noget
 			function objectifyForm(inp){

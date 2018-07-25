@@ -1,7 +1,7 @@
 <?php
-	require $_SERVER["DOCUMENT_ROOT"]."/etc/header.php";
+	require_once $_SERVER["DOCUMENT_ROOT"]."/etc/header.php";
 ?>
 
 <?php
-	require $_SERVER["DOCUMENT_ROOT"]."/etc/footer.php";
+	include $_SERVER["DOCUMENT_ROOT"]."/etc/footer.php";
 ?>

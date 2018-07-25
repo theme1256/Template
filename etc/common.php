@@ -24,18 +24,13 @@
 	define('IMG', ASSETS.'img/');
 	define('SCRIPTS', HOME.'scripts/');
 	define('ROOT', $_SERVER['DOCUMENT_ROOT']);
-	if(isset($_COOKIE['debug'])){
-		define('DEBUG', true);
-	} else{
-		define('DEBUG', false);
-	}
+	define('DEBUG', (isset($_COOKIE['debug'])));
 
 	// Find client language
-	if(!isset($_COOKIE['lang'])){
+	if(!isset($_COOKIE['lang']))
 		$lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-	} else{
+	else
 		$lang = $_COOKIE['lang'];
-	}
 	if(!in_array($lang, ['da', 'en']))
 		$lang = "en";
 
