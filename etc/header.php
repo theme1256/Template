@@ -44,6 +44,9 @@
 		<!-- Gritter -->
 		<link <?= $css_rule;?> href="<?= PLUGINS;?>Gritter-1.7.4/css/jquery.gritter.css"/>
 		<script async type="text/javascript" src="<?= PLUGINS;?>Gritter-1.7.4/js/jquery.gritter.min.js"></script>
+		<!-- Sweet Alert -->
+		<link <?= $css_rule;?> href="<?= PLUGINS;?>sweetalert2-7.20.9/dist/sweetalert2.min.css"/>
+		<script async type="text/javascript" src="<?= PLUGINS;?>sweetalert2-7.20.9/dist/sweetalert2.min.js"></script>
 		<!-- Custom JS -->
 		<script type="text/javascript">
 			// En global variabel som bruges til at se om en klient skal have extra information i console.log el.l.
