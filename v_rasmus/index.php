@@ -77,7 +77,7 @@
 		$inUrl = preg_replace("/(\.|\/)$/", '', $inUrl);
 
 		try{
-			$q = $faelles->prepare("
+			$q = $con->prepare("
 				SELECT
 					url_id AS id,
 					kildeUrl AS sUrl,
@@ -95,7 +95,7 @@
 			$q->execute();
 			if($q->rowCount() == 0){
 				// inUrl kunne ikke findes, tjekker om en regexUrl matcher den i stedet
-				$tmp = regexTest($inUrl, $faelles, $websideID);
+				$tmp = regexTest($inUrl, $con, $websideID);
 				if(is_array($tmp)){
 					$type = $tmp['type'];
 					$noindex = $tmp['noindex'];

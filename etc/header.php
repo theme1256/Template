@@ -42,8 +42,8 @@
 		<!-- FontAwesome -->
 		<link <?= $css_rule;?> href="<?= PLUGINS;?>fontawesome-free-5.2.0-web/css/all.min.css">
 		<!-- Gritter -->
-		<script async type="text/javascript" src="<?= JS;?>jquery.gritter.js?v=1.7.4"></script>
-		<link <?= $css_rule;?> href="<?= CSS;?>jquery.gritter.css?v=1.7.4"/>
+		<link <?= $css_rule;?> href="<?= PLUGINS;?>Gritter-1.7.4/css/jquery.gritter.css"/>
+		<script async type="text/javascript" src="<?= PLUGINS;?>Gritter-1.7.4/js/jquery.gritter.min.js"></script>
 		<!-- Custom JS -->
 		<script type="text/javascript">
 			// En global variabel som bruges til at se om en klient skal have extra information i console.log el.l.
