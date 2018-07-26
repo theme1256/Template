@@ -138,8 +138,11 @@
 			// En måde at validere inputs og eftersom JavaScript ikke understøtter pointers, så er der en global variabel E, som tæller fejl
 			// Husk at nulstille E i starten af en validering
 			let E = 0;
-			let validate = function(id, parent = ".form-group"){
-				const obj = $(id);
+			let helptext = function(obj, text, parent = ".form-group"){
+				let p = obj.closest(parent);
+				p.find('small').text(text);
+			}
+			let validate = function(obj, parent = ".form-group"){
 				let p = obj.closest(parent);
 				p.removeClass("has-error");
 				p.removeClass("has-warning");
@@ -148,6 +151,7 @@
 				if(val == "" || !val || val.length === 0 || val == 0){
 					p.addClass("has-error");
 					E++;
+					helptext(obj, "Dette felt skal være udfyldt");
 					return false;
 				} else{
 					p.addClass("has-success");
@@ -172,10 +176,12 @@
 					
 					// Hent data fra formen
 					E = 0;
-					let Data = {};
+					let Data = objectifyForm($(this).serializeArray());
 					$(this).find("input").each(function(index, el){
 						let e = $(el);
-						Data[e.attr('name')] = e.val();
+						const required = e.attr("required");
+						if(typeof attr !== typeof undefined && attr !== false)
+							validate(e);
 					});
 					Data.method = "ajax";
 					const after = (Data.return === undefined ? false : Data.return);
