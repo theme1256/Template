@@ -90,20 +90,6 @@
 			}
 		}
 
-		public function statusBox($class = "status"){
-			$o = "";
-			if(isset($_SESSION['status'])){
-				$o .= '<div class="alert alert-'.$_SESSION['msg'].'" role="alert">';
-				$o .= $_SESSION['status'];
-				$o .= '</div>';
-				unset($_SESSION['status']);
-				unset($_SESSION['msg']);
-			} else{
-				$o .= '<div class="'.$class.' alert" role="alert" style="display: none;"></div>';
-			}
-			return $o;
-		}
-
 		public function login(){
 			return ($_SESSION['login'] && isset($_SESSION['tID']));
 		}
