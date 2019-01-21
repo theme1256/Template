@@ -35,8 +35,7 @@ CREATE TABLE `Redirect` (
   `fk_urlID` int(5) DEFAULT NULL,
   `type` int(5) NOT NULL,
   `noindex` int(2) NOT NULL DEFAULT '0',
-  `regex` int(1) NOT NULL DEFAULT '0',
-  `desc` varchar(75) NOT NULL
+  `descrip` varchar(75) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

@@ -54,7 +54,7 @@
 			}
 			return false;
 		} catch(PDOException $e){
-			die("kan ikke udføre regex-URL handling" . $e->getMessage());
+			die("Problem executing URL-action" . $e->getMessage());
 		}
 	}
 
@@ -110,7 +110,7 @@
 				$noindex = $row['noindex'];
 			}
 		} catch(PDOException $e){
-			die("kan ikke udføre URL handling" . $e->getMessage());
+			die("Problem executing URL-action" . $e->getMessage());
 		}
 	} else{
 		// Remove starting /
@@ -125,7 +125,7 @@
 
 	// Stop if url is missing
 	if($url == "")
-		die("url mangler");
+		die("Missing url");
 
 	// Stop access to blacklisted folders
 	if(blacklistFolder($blacklistFolder, $inUrl))
