@@ -11,8 +11,8 @@ IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
 </Limit>
 
 # Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Force remove www.
 RewriteEngine On
