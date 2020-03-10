@@ -1,0 +1,26 @@
+{
+  "name": "template",
+  "version": "1.0.0",
+  "description": "En template til at starte en ny hjemmeside, så de mest standard ting er sat op.",
+  "main": "index.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theme1256/Template.git"
+  },
+  "author": "Folkmann",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theme1256/Template/issues"
+  },
+  "homepage": "https://github.com/theme1256/Template#readme",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.12.1",
+    "bootstrap": "^4.4.1",
+    "gritter": "^1.7.4",
+    "jquery": "^3.4.1",
+    "sweetalert2": "^9.10.0"
+  }
+}
