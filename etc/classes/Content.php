@@ -125,7 +125,7 @@
 			if ($opts["inline"])
 				return "<script type=\"text/javascript\">".\file_get_contents($_SERVER["DOCUMENT_ROOT"] . \explode("?", $src)[0]) . "</script>";
 			else
-				return "<script ".($async == true ? "async": "")." type=\"text/javascript\" src=\"" . $src . ($this->debug ? "?debug=".\time() : "") . "\"></script>\n";
+				return "<script ".($opts["async"] == true ? "async": "")." type=\"text/javascript\" src=\"" . $src . ($this->debug ? "?debug=".\time() : "") . "\"></script>\n";
 		}
 
 		public function css(String $src, $opts = []) {
